@@ -3,8 +3,8 @@
 //#define VERBOSE
 
 #include <boost/test/unit_test.hpp>
-#include <bitcoinapi/bitcoinapi.h>
-#include <bitcoinapi/exception.h>
+#include <zerorpc/zerorpc.h>
+#include <zerorpc/exception.h>
 
 #define NO_THROW(METHOD)                    \
   try {                                     \
@@ -31,7 +31,7 @@ struct MyFixture {
 	std::string address;
 	int port;
 
-	BitcoinAPI btc;
+	ZeroRPC btc;
 
      MyFixture()
      : username("Ulysses"),

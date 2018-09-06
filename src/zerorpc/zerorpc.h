@@ -1,5 +1,5 @@
 /**
- * @file    bitcoinapi.h
+ * @file    zerorpc.h
  * @author  Krzysztof Okupski
  * @date    29.10.2014
  * @version 1.0
@@ -16,7 +16,7 @@
 
 namespace jsonrpc { class HttpClient; class Client; }
 
-class BitcoinAPI
+class ZeroRPC
 {
 
 private:
@@ -25,8 +25,8 @@ private:
 
 public:
     /* === Constructor and Destructor === */
-    BitcoinAPI(const std::string& user, const std::string& password, const std::string& host, int port);
-    ~BitcoinAPI();
+    ZeroRPC(const std::string& user, const std::string& password, const std::string& host, int port);
+    ~ZeroRPC();
 
     /* === Auxiliary functions === */
     Json::Value sendcommand(const std::string& command, const Json::Value& params);

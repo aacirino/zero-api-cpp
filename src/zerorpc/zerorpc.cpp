@@ -1,5 +1,5 @@
 /**
- * @file    bitcoinapi.cpp
+ * @file    zerorpc.cpp
  * @author  Krzysztof Okupski
  * @date    29.10.2014
  * @version 1.0
@@ -8,7 +8,7 @@
  * a running instance of Bitcoin daemon over JSON-RPC.
  */
 
-#include "bitcoinapi.h"
+#include "zerorpc.h"
 
 #include <string>
 #include <stdexcept>
@@ -31,20 +31,20 @@ using std::string;
 using std::vector;
 
 
-BitcoinAPI::BitcoinAPI(const string& user, const string& password, const string& host, int port)
+ZeroRPC::ZeroRPC(const string& user, const string& password, const string& host, int port)
 : httpClient(new HttpClient("http://" + user + ":" + password + "@" + host + ":" + IntegerToString(port))),
   client(new Client(*httpClient, JSONRPC_CLIENT_V1))
 {
     httpClient->SetTimeout(50000);
 }
 
-BitcoinAPI::~BitcoinAPI()
+ZeroRPC::~ZeroRPC()
 {
     delete client;
     delete httpClient;
 }
 
-Value BitcoinAPI::sendcommand(const string& command, const Value& params){    
+Value ZeroRPC::sendcommand(const string& command, const Value& params){    
     Value result;
 
     try{
@@ -59,13 +59,13 @@ Value BitcoinAPI::sendcommand(const string& command, const Value& params){
 }
 
 
-string BitcoinAPI::IntegerToString(int num){
+string ZeroRPC::IntegerToString(int num){
 	std::ostringstream ss;
 	ss << num;
 	return ss.str();
 }
 
-std::string BitcoinAPI::RoundDouble(double num)
+std::string ZeroRPC::RoundDouble(double num)
 {
 	std::ostringstream ss;
 	ss.precision(8);
@@ -76,7 +76,7 @@ std::string BitcoinAPI::RoundDouble(double num)
 
 
 /* === General functions === */
-getinfo_t BitcoinAPI::getinfo() {
+getinfo_t ZeroRPC::getinfo() {
 	string command = "getinfo";
 	Value params, result;
 	getinfo_t ret;
@@ -101,14 +101,14 @@ getinfo_t BitcoinAPI::getinfo() {
 	return ret;
 }
 
-void BitcoinAPI::stop() {
+void ZeroRPC::stop() {
 	string command = "stop";
 	Value params;
 	sendcommand(command, params);
 }
 
 /* === Node functions === */
-void BitcoinAPI::addnode(const string& node, const string& comm) {
+void ZeroRPC::addnode(const string& node, const string& comm) {
 
 	if (!(comm == "add" || comm == "remove" || comm == "onetry")) {
 		throw std::runtime_error("Incorrect addnode parameter: " + comm);
@@ -121,7 +121,7 @@ void BitcoinAPI::addnode(const string& node, const string& comm) {
 	sendcommand(command, params);
 }
 
-vector<nodeinfo_t> BitcoinAPI::getaddednodeinfo(bool dns) {
+vector<nodeinfo_t> ZeroRPC::getaddednodeinfo(bool dns) {
 	string command = "getaddednodeinfo";
 	Value params, result;
 	vector<nodeinfo_t> ret;
@@ -156,7 +156,7 @@ vector<nodeinfo_t> BitcoinAPI::getaddednodeinfo(bool dns) {
 	return ret;
 }
 
-vector<nodeinfo_t> BitcoinAPI::getaddednodeinfo(bool dns, const std::string& node) {
+vector<nodeinfo_t> ZeroRPC::getaddednodeinfo(bool dns, const std::string& node) {
 	string command = "getaddednodeinfo";
 	Value params, result;
 	vector<nodeinfo_t> ret;
@@ -191,7 +191,7 @@ vector<nodeinfo_t> BitcoinAPI::getaddednodeinfo(bool dns, const std::string& nod
 	return ret;
 }
 
-int BitcoinAPI::getconnectioncount() {
+int ZeroRPC::getconnectioncount() {
 	string command = "getconnectioncount";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -199,7 +199,7 @@ int BitcoinAPI::getconnectioncount() {
 	return result.asInt();
 }
 
-vector<peerinfo_t> BitcoinAPI::getpeerinfo() {
+vector<peerinfo_t> ZeroRPC::getpeerinfo() {
 	string command = "getpeerinfo";
 	Value params, result;
 	vector<peerinfo_t> ret;
@@ -230,14 +230,14 @@ vector<peerinfo_t> BitcoinAPI::getpeerinfo() {
 }
 
 /* === Wallet functions === */
-void BitcoinAPI::backupwallet(const string& destination) {
+void ZeroRPC::backupwallet(const string& destination) {
 	string command = "backupwallet";
 	Value params;
 	params.append(destination);
 	sendcommand(command, params);
 }
 
-string BitcoinAPI::encryptwallet(const string& passphrase) {
+string ZeroRPC::encryptwallet(const string& passphrase) {
 	string command = "encryptwallet";
 	Value params, result;
 	params.append(passphrase);
@@ -245,13 +245,13 @@ string BitcoinAPI::encryptwallet(const string& passphrase) {
 	return result.asString();
 }
 
-void BitcoinAPI::walletlock() {
+void ZeroRPC::walletlock() {
 	string command = "walletlock";
 	Value params;
 	sendcommand(command, params);
 }
 
-void BitcoinAPI::walletpassphrase(const string& passphrase, int timeout) {
+void ZeroRPC::walletpassphrase(const string& passphrase, int timeout) {
 	string command = "walletpassphrase";
 	Value params;
 	params.append(passphrase);
@@ -259,7 +259,7 @@ void BitcoinAPI::walletpassphrase(const string& passphrase, int timeout) {
 	sendcommand(command, params);
 }
 
-void BitcoinAPI::walletpassphrasechange(const string& oldpassphrase, const string& newpassphrase) {
+void ZeroRPC::walletpassphrasechange(const string& oldpassphrase, const string& newpassphrase) {
 	string command = "walletpassphrasechange";
 	Value params;
 	params.append(oldpassphrase);
@@ -267,7 +267,7 @@ void BitcoinAPI::walletpassphrasechange(const string& oldpassphrase, const strin
 	sendcommand(command, params);
 }
 
-string BitcoinAPI::dumpprivkey(const string& bitcoinaddress) {
+string ZeroRPC::dumpprivkey(const string& bitcoinaddress) {
 	string command = "dumpprivkey";
 	Value params, result;
 	params.append(bitcoinaddress);
@@ -275,14 +275,14 @@ string BitcoinAPI::dumpprivkey(const string& bitcoinaddress) {
 	return result.asString();
 }
 
-void BitcoinAPI::importprivkey(const string& bitcoinprivkey) {
+void ZeroRPC::importprivkey(const string& bitcoinprivkey) {
 	string command = "importprivkey";
 	Value params;
 	params.append(bitcoinprivkey);
 	sendcommand(command, params);
 }
 
-void BitcoinAPI::importprivkey(const string& bitcoinprivkey, const string& label, bool rescan) {
+void ZeroRPC::importprivkey(const string& bitcoinprivkey, const string& label, bool rescan) {
 	string command = "importprivkey";
 	Value params;
 	params.append(bitcoinprivkey);
@@ -291,7 +291,7 @@ void BitcoinAPI::importprivkey(const string& bitcoinprivkey, const string& label
 	sendcommand(command, params);
 }
 
-string BitcoinAPI::addmultisigaddress(int nrequired, const vector<string>& keys) {
+string ZeroRPC::addmultisigaddress(int nrequired, const vector<string>& keys) {
 	string command = "addmultisigaddress";
 	Value params, result;
 
@@ -306,7 +306,7 @@ string BitcoinAPI::addmultisigaddress(int nrequired, const vector<string>& keys)
 	return result.asString();
 }
 
-string BitcoinAPI::addmultisigaddress(int nrequired, const vector<string>& keys, const string& account) {
+string ZeroRPC::addmultisigaddress(int nrequired, const vector<string>& keys, const string& account) {
 	string command = "addmultisigaddress";
 	Value params, result;
 	params.append(nrequired);
@@ -322,7 +322,7 @@ string BitcoinAPI::addmultisigaddress(int nrequired, const vector<string>& keys,
 	return result.asString();
 }
 
-multisig_t BitcoinAPI::createmultisig(int nrequired, const vector<string>& keys) {
+multisig_t ZeroRPC::createmultisig(int nrequired, const vector<string>& keys) {
 	string command = "createmultisig";
 	Value params, result;
 	multisig_t ret;
@@ -342,7 +342,7 @@ multisig_t BitcoinAPI::createmultisig(int nrequired, const vector<string>& keys)
 	return ret;
 }
 
-string BitcoinAPI::getnewaddress(const string& account) {
+string ZeroRPC::getnewaddress(const string& account) {
 	string command = "getnewaddress";
 	Value params, result;
 	params.append(account);
@@ -350,7 +350,7 @@ string BitcoinAPI::getnewaddress(const string& account) {
 	return result.asString();
 }
 
-validateaddress_t BitcoinAPI::validateaddress(const string& bitcoinaddress) {
+validateaddress_t ZeroRPC::validateaddress(const string& bitcoinaddress) {
 	string command = "validateaddress";
 	Value params, result;
 	validateaddress_t ret;
@@ -368,13 +368,13 @@ validateaddress_t BitcoinAPI::validateaddress(const string& bitcoinaddress) {
 	return ret;
 }
 
-void BitcoinAPI::keypoolrefill() {
+void ZeroRPC::keypoolrefill() {
 	string command = "keypoolrefill";
 	Value params;
 	sendcommand(command, params);
 }
 
-bool BitcoinAPI::settxfee(double amount) {
+bool ZeroRPC::settxfee(double amount) {
 	string command = "settxfee";
 	Value params, result;
 	params.append(RoundDouble(amount));
@@ -382,7 +382,7 @@ bool BitcoinAPI::settxfee(double amount) {
 	return result.asBool();
 }
 
-double BitcoinAPI::estimatefee(int blocks) {
+double ZeroRPC::estimatefee(int blocks) {
 	string command = "estimatefee";
 	Value params, result;
 	params.append(blocks);
@@ -390,7 +390,7 @@ double BitcoinAPI::estimatefee(int blocks) {
 	return result.asDouble();
 }
 
-string BitcoinAPI::signmessage(const std::string& bitcoinaddress, const std::string& message) {
+string ZeroRPC::signmessage(const std::string& bitcoinaddress, const std::string& message) {
 	string command = "signmessage";
 	Value params, result;
 	params.append(bitcoinaddress);
@@ -399,7 +399,7 @@ string BitcoinAPI::signmessage(const std::string& bitcoinaddress, const std::str
 	return result.asString();
 }
 
-bool BitcoinAPI::verifymessage(const std::string& bitcoinaddress, const std::string& signature, const std::string& message) {
+bool ZeroRPC::verifymessage(const std::string& bitcoinaddress, const std::string& signature, const std::string& message) {
 	string command = "verifymessage";
 	Value params, result;
 	params.append(bitcoinaddress);
@@ -410,7 +410,7 @@ bool BitcoinAPI::verifymessage(const std::string& bitcoinaddress, const std::str
 }
 
 /* === Accounting === */
-double BitcoinAPI::getbalance() {
+double ZeroRPC::getbalance() {
 	string command = "getbalance";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -418,7 +418,7 @@ double BitcoinAPI::getbalance() {
 	return result.asDouble();
 }
 
-double BitcoinAPI::getbalance(const string& account, int minconf) {
+double ZeroRPC::getbalance(const string& account, int minconf) {
 	string command = "getbalance";
 	Value params, result;
 	params.append(account);
@@ -428,7 +428,7 @@ double BitcoinAPI::getbalance(const string& account, int minconf) {
 	return result.asDouble();
 }
 
-double BitcoinAPI::getunconfirmedbalance() {
+double ZeroRPC::getunconfirmedbalance() {
 	string command = "getunconfirmedbalance";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -436,7 +436,7 @@ double BitcoinAPI::getunconfirmedbalance() {
 	return result.asDouble();
 }
 
-double BitcoinAPI::getreceivedbyaccount(const string& account, int minconf) {
+double ZeroRPC::getreceivedbyaccount(const string& account, int minconf) {
 	string command = "getreceivedbyaccount";
 	Value params, result;
 	params.append(account);
@@ -446,7 +446,7 @@ double BitcoinAPI::getreceivedbyaccount(const string& account, int minconf) {
 	return result.asDouble();
 }
 
-double BitcoinAPI::getreceivedbyaddress(const string& bitcoinaddress, int minconf) {
+double ZeroRPC::getreceivedbyaddress(const string& bitcoinaddress, int minconf) {
 	string command = "getreceivedbyaddress";
 	Value params, result;
 	params.append(bitcoinaddress);
@@ -456,7 +456,7 @@ double BitcoinAPI::getreceivedbyaddress(const string& bitcoinaddress, int mincon
 	return result.asDouble();
 }
 
-vector<accountinfo_t> BitcoinAPI::listreceivedbyaccount(int minconf, bool includeempty) {
+vector<accountinfo_t> ZeroRPC::listreceivedbyaccount(int minconf, bool includeempty) {
 	string command = "listreceivedbyaccount";
 	Value params, result;
 	vector<accountinfo_t> ret;
@@ -478,7 +478,7 @@ vector<accountinfo_t> BitcoinAPI::listreceivedbyaccount(int minconf, bool includ
 	return ret;
 }
 
-vector<addressinfo_t> BitcoinAPI::listreceivedbyaddress(int minconf, bool includeempty) {
+vector<addressinfo_t> ZeroRPC::listreceivedbyaddress(int minconf, bool includeempty) {
 	string command = "listreceivedbyaddress";
 	Value params, result;
 	vector<addressinfo_t> ret;
@@ -505,7 +505,7 @@ vector<addressinfo_t> BitcoinAPI::listreceivedbyaddress(int minconf, bool includ
 	return ret;
 }
 
-gettransaction_t BitcoinAPI::gettransaction(const string& tx, bool watch) {
+gettransaction_t ZeroRPC::gettransaction(const string& tx, bool watch) {
 	string command = "gettransaction";
 	Value params, result;
 	gettransaction_t ret;
@@ -548,7 +548,7 @@ gettransaction_t BitcoinAPI::gettransaction(const string& tx, bool watch) {
 	return ret;
 }
 
-vector<transactioninfo_t> BitcoinAPI::listtransactions() {
+vector<transactioninfo_t> ZeroRPC::listtransactions() {
 	string command = "listtransactions";
 	Value params, result;
 	vector<transactioninfo_t> ret;
@@ -583,7 +583,7 @@ vector<transactioninfo_t> BitcoinAPI::listtransactions() {
 	return ret;
 }
 
-vector<transactioninfo_t> BitcoinAPI::listtransactions(const string& account, int count, int from) {
+vector<transactioninfo_t> ZeroRPC::listtransactions(const string& account, int count, int from) {
 	string command = "listtransactions";
 	Value params, result;
 	vector<transactioninfo_t> ret;
@@ -621,7 +621,7 @@ vector<transactioninfo_t> BitcoinAPI::listtransactions(const string& account, in
 	return ret;
 }
 
-string BitcoinAPI::getaccount(const string& bitcoinaddress) {
+string ZeroRPC::getaccount(const string& bitcoinaddress) {
 	string command = "getaccount";
 	Value params, result;
 	params.append(bitcoinaddress);
@@ -629,7 +629,7 @@ string BitcoinAPI::getaccount(const string& bitcoinaddress) {
 	return result.asString();
 }
 
-string BitcoinAPI::getaccountaddress(const string& account) {
+string ZeroRPC::getaccountaddress(const string& account) {
 	string command = "getaccountaddress";
 	Value params, result;
 	params.append(account);
@@ -638,7 +638,7 @@ string BitcoinAPI::getaccountaddress(const string& account) {
 }
 
 
-vector<std::string> BitcoinAPI::getaddressesbyaccount(const string& account) {
+vector<std::string> ZeroRPC::getaddressesbyaccount(const string& account) {
 	string command = "getaddressesbyaccount";
 	Value params, result;
 	vector<string> ret;
@@ -653,7 +653,7 @@ vector<std::string> BitcoinAPI::getaddressesbyaccount(const string& account) {
 	return ret;
 }
 
-map<string, double> BitcoinAPI::listaccounts(int minconf) {
+map<string, double> ZeroRPC::listaccounts(int minconf) {
 	string command = "listaccounts";
 	Value params, result;
 	Value account, amount;
@@ -674,7 +674,7 @@ map<string, double> BitcoinAPI::listaccounts(int minconf) {
 	return ret;
 }
 
-vector< vector<addressgrouping_t> > BitcoinAPI::listaddressgroupings() {
+vector< vector<addressgrouping_t> > ZeroRPC::listaddressgroupings() {
 	string command = "listaddressgroupings";
 	Value params, result;
 	vector< vector<addressgrouping_t> > ret;
@@ -700,7 +700,7 @@ vector< vector<addressgrouping_t> > BitcoinAPI::listaddressgroupings() {
 	return ret;
 }
 
-bool BitcoinAPI::move(const string& fromaccount, const string& toaccount, double amount, int minconf) {
+bool ZeroRPC::move(const string& fromaccount, const string& toaccount, double amount, int minconf) {
 	string command = "move";
 	Value params, result;
 
@@ -713,7 +713,7 @@ bool BitcoinAPI::move(const string& fromaccount, const string& toaccount, double
 	return result.asBool();
 }
 
-bool BitcoinAPI::move(const string& fromaccount, const string& toaccount, double amount, const string& comment, int minconf) {
+bool ZeroRPC::move(const string& fromaccount, const string& toaccount, double amount, const string& comment, int minconf) {
 	string command = "move";
 	Value params, result;
 
@@ -727,7 +727,7 @@ bool BitcoinAPI::move(const string& fromaccount, const string& toaccount, double
 	return result.asBool();
 }
 
-void BitcoinAPI::setaccount(const string& bitcoinaddress, const string& account){
+void ZeroRPC::setaccount(const string& bitcoinaddress, const string& account){
 	string command = "setaccount";
 	Value params;
 
@@ -737,7 +737,7 @@ void BitcoinAPI::setaccount(const string& bitcoinaddress, const string& account)
 	sendcommand(command, params);
 }
 
-string BitcoinAPI::sendtoaddress(const string& bitcoinaddress, double amount) {
+string ZeroRPC::sendtoaddress(const string& bitcoinaddress, double amount) {
 	string command = "sendtoaddress";
 	Value params, result;
 
@@ -748,7 +748,7 @@ string BitcoinAPI::sendtoaddress(const string& bitcoinaddress, double amount) {
 	return result.asString();
 }
 
-string BitcoinAPI::sendtoaddress(const string& bitcoinaddress, double amount, const string& comment, const string& comment_to) {
+string ZeroRPC::sendtoaddress(const string& bitcoinaddress, double amount, const string& comment, const string& comment_to) {
 	string command = "sendtoaddress";
 	Value params, result;
 
@@ -761,7 +761,7 @@ string BitcoinAPI::sendtoaddress(const string& bitcoinaddress, double amount, co
 	return result.asString();
 }
 
-string BitcoinAPI::sendfrom(const string& fromaccount, const string& tobitcoinaddress, double amount) {
+string ZeroRPC::sendfrom(const string& fromaccount, const string& tobitcoinaddress, double amount) {
 	string command = "sendfrom";
 	Value params, result;
 
@@ -773,7 +773,7 @@ string BitcoinAPI::sendfrom(const string& fromaccount, const string& tobitcoinad
 	return result.asString();
 }
 
-string BitcoinAPI::sendfrom(const string& fromaccount, const string& tobitcoinaddress, double amount, const string& comment, const string& comment_to, int minconf) {
+string ZeroRPC::sendfrom(const string& fromaccount, const string& tobitcoinaddress, double amount, const string& comment, const string& comment_to, int minconf) {
 	string command = "sendfrom";
 	Value params, result;
 
@@ -788,7 +788,7 @@ string BitcoinAPI::sendfrom(const string& fromaccount, const string& tobitcoinad
 	return result.asString();
 }
 
-string BitcoinAPI::sendmany(const string& fromaccount, const map<string,double>& amounts) {
+string ZeroRPC::sendmany(const string& fromaccount, const map<string,double>& amounts) {
 	string command = "sendmany";
 	Value params, result;
 
@@ -805,7 +805,7 @@ string BitcoinAPI::sendmany(const string& fromaccount, const map<string,double>&
 	return result.asString();
 }
 
-string BitcoinAPI::sendmany(const string& fromaccount, const map<string,double>& amounts, const string comment, int minconf) {
+string ZeroRPC::sendmany(const string& fromaccount, const map<string,double>& amounts, const string comment, int minconf) {
 	string command = "sendmany";
 	Value params, result;
 
@@ -824,7 +824,7 @@ string BitcoinAPI::sendmany(const string& fromaccount, const map<string,double>&
 	return result.asString();
 }
 
-vector<unspenttxout_t> BitcoinAPI::listunspent(int minconf, int maxconf) {
+vector<unspenttxout_t> ZeroRPC::listunspent(int minconf, int maxconf) {
 	string command = "listunspent";
 	Value params, result;
 	vector<unspenttxout_t> ret;
@@ -851,7 +851,7 @@ vector<unspenttxout_t> BitcoinAPI::listunspent(int minconf, int maxconf) {
 	return ret;
 }
 
-vector<txout_t> BitcoinAPI::listlockunspent() {
+vector<txout_t> ZeroRPC::listlockunspent() {
 	string command = "listlockunspent";
 	Value params, result;
 	vector<txout_t> ret;
@@ -869,7 +869,7 @@ vector<txout_t> BitcoinAPI::listlockunspent() {
 	return ret;
 }
 
-bool BitcoinAPI::lockunspent(bool unlock, const vector<txout_t>& outputs) {
+bool ZeroRPC::lockunspent(bool unlock, const vector<txout_t>& outputs) {
 	string command = "lockunspent";
 	Value params, result;
 
@@ -891,7 +891,7 @@ bool BitcoinAPI::lockunspent(bool unlock, const vector<txout_t>& outputs) {
 }
 
 /* === Mining functions === */
-string BitcoinAPI::getbestblockhash() {
+string ZeroRPC::getbestblockhash() {
 	string command = "getbestblockhash";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -899,7 +899,7 @@ string BitcoinAPI::getbestblockhash() {
 	return result.asString();
 }
 
-string BitcoinAPI::getblockhash(int blocknumber) {
+string ZeroRPC::getblockhash(int blocknumber) {
 	string command = "getblockhash";
 	Value params, result;
 	params.append(blocknumber);
@@ -908,7 +908,7 @@ string BitcoinAPI::getblockhash(int blocknumber) {
 	return result.asString();
 }
 
-blockinfo_t BitcoinAPI::getblock(const string& blockhash) {
+blockinfo_t ZeroRPC::getblock(const string& blockhash) {
 	string command = "getblock";
 	Value params, result;
 	blockinfo_t ret;
@@ -938,7 +938,7 @@ blockinfo_t BitcoinAPI::getblock(const string& blockhash) {
 	return ret;
 }
 
-int BitcoinAPI::getblockcount() {
+int ZeroRPC::getblockcount() {
 	string command = "getblockcount";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -946,7 +946,7 @@ int BitcoinAPI::getblockcount() {
 	return result.asInt();
 }
 
-void BitcoinAPI::setgenerate(bool generate, int genproclimit) {
+void ZeroRPC::setgenerate(bool generate, int genproclimit) {
 	string command = "setgenerate";
 	Value params;
 	params.append(generate);
@@ -954,7 +954,7 @@ void BitcoinAPI::setgenerate(bool generate, int genproclimit) {
 	sendcommand(command, params);
 }
 
-bool BitcoinAPI::getgenerate() {
+bool ZeroRPC::getgenerate() {
 	string command = "getgenerate";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -962,7 +962,7 @@ bool BitcoinAPI::getgenerate() {
 	return result.asBool();
 }
 
-double BitcoinAPI::getdifficulty() {
+double ZeroRPC::getdifficulty() {
 	string command = "getdifficulty";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -970,7 +970,7 @@ double BitcoinAPI::getdifficulty() {
 	return result.asDouble();
 }
 
-mininginfo_t BitcoinAPI::getmininginfo() {
+mininginfo_t ZeroRPC::getmininginfo() {
 	string command = "getmininginfo";
 	Value params, result;
 	mininginfo_t ret;
@@ -993,7 +993,7 @@ mininginfo_t BitcoinAPI::getmininginfo() {
 }
 
 
-txsinceblock_t BitcoinAPI::listsinceblock(const string& blockhash, int target_confirmations) {
+txsinceblock_t ZeroRPC::listsinceblock(const string& blockhash, int target_confirmations) {
 	string command = "listsinceblock";
 	Value params, result;
 	txsinceblock_t ret;
@@ -1034,7 +1034,7 @@ txsinceblock_t BitcoinAPI::listsinceblock(const string& blockhash, int target_co
 
 
 /* === Raw transaction calls === */
-getrawtransaction_t BitcoinAPI::getrawtransaction(const string& txid, int verbose) {
+getrawtransaction_t ZeroRPC::getrawtransaction(const string& txid, int verbose) {
 	string command = "getrawtransaction";
 	Value params, result;
 	getrawtransaction_t ret;
@@ -1088,7 +1088,7 @@ getrawtransaction_t BitcoinAPI::getrawtransaction(const string& txid, int verbos
 	return ret;
 }
 
-decodescript_t BitcoinAPI::decodescript(const std::string& hexString) {
+decodescript_t ZeroRPC::decodescript(const std::string& hexString) {
 	string command = "decodescript";
 	Value params, result;
 	decodescript_t ret;
@@ -1109,7 +1109,7 @@ decodescript_t BitcoinAPI::decodescript(const std::string& hexString) {
 	return ret;
 }
 
-decoderawtransaction_t BitcoinAPI::decoderawtransaction(const string& hexString) {
+decoderawtransaction_t ZeroRPC::decoderawtransaction(const string& hexString) {
 	string command = "decoderawtransaction";
 	Value params, result;
 	decoderawtransaction_t ret;
@@ -1154,7 +1154,7 @@ decoderawtransaction_t BitcoinAPI::decoderawtransaction(const string& hexString)
 	return ret;
 }
 
-string BitcoinAPI::sendrawtransaction(const string& hexString, bool highFee) {
+string ZeroRPC::sendrawtransaction(const string& hexString, bool highFee) {
 	string command = "sendrawtransaction";
 	Value params, result;
 	params.append(hexString);
@@ -1164,7 +1164,7 @@ string BitcoinAPI::sendrawtransaction(const string& hexString, bool highFee) {
 	return result.asString();
 }
 
-string BitcoinAPI::createrawtransaction(const vector<txout_t>& inputs, const map<string,double>& amounts) {
+string ZeroRPC::createrawtransaction(const vector<txout_t>& inputs, const map<string,double>& amounts) {
 	string command = "createrawtransaction";
 	Value params, result;
 
@@ -1191,7 +1191,7 @@ string BitcoinAPI::createrawtransaction(const vector<txout_t>& inputs, const map
 	return result.asString();
 }
 
-string BitcoinAPI::createrawtransaction(const vector<txout_t>& inputs, const map<string,string>& amounts) {
+string ZeroRPC::createrawtransaction(const vector<txout_t>& inputs, const map<string,string>& amounts) {
 	string command = "createrawtransaction";
 	Value params, result;
 
@@ -1218,7 +1218,7 @@ string BitcoinAPI::createrawtransaction(const vector<txout_t>& inputs, const map
 	return result.asString();
 }
 
-signrawtransaction_t BitcoinAPI::signrawtransaction(const string& rawTx, const vector<signrawtxin_t> inputs) {
+signrawtransaction_t ZeroRPC::signrawtransaction(const string& rawTx, const vector<signrawtxin_t> inputs) {
 	string command = "signrawtransaction";
 	Value params, result;
 	signrawtransaction_t ret;
@@ -1246,7 +1246,7 @@ signrawtransaction_t BitcoinAPI::signrawtransaction(const string& rawTx, const v
 	return ret;
 }
 
-signrawtransaction_t BitcoinAPI::signrawtransaction(const string& rawTx, const vector<signrawtxin_t> inputs, const vector<string>& privkeys, const string& sighashtype) {
+signrawtransaction_t ZeroRPC::signrawtransaction(const string& rawTx, const vector<signrawtxin_t> inputs, const vector<string>& privkeys, const string& sighashtype) {
 	string command = "signrawtransaction";
 	Value params, result;
 	signrawtransaction_t ret;
@@ -1282,7 +1282,7 @@ signrawtransaction_t BitcoinAPI::signrawtransaction(const string& rawTx, const v
 	return ret;
 }
 
-vector<string> BitcoinAPI::getrawmempool() {
+vector<string> ZeroRPC::getrawmempool() {
 	string command = "getrawmempool";
 	Value params, result;
 	vector<string> ret;
@@ -1299,7 +1299,7 @@ vector<string> BitcoinAPI::getrawmempool() {
 	return ret;
 }
 
-string BitcoinAPI::getrawchangeaddress() {
+string ZeroRPC::getrawchangeaddress() {
 	string command = "getrawchangeaddress";
 	Value params, result;
 	result = sendcommand(command, params);
@@ -1307,7 +1307,7 @@ string BitcoinAPI::getrawchangeaddress() {
 	return result.asString();
 }
 
-utxoinfo_t BitcoinAPI::gettxout(const std::string& txid, int n, bool includemempool) {
+utxoinfo_t ZeroRPC::gettxout(const std::string& txid, int n, bool includemempool) {
 	string command = "gettxout";
 	Value params, result;
 	utxoinfo_t ret;
@@ -1335,7 +1335,7 @@ utxoinfo_t BitcoinAPI::gettxout(const std::string& txid, int n, bool includememp
 	return ret;
 }
 
-utxosetinfo_t BitcoinAPI::gettxoutsetinfo() {
+utxosetinfo_t ZeroRPC::gettxoutsetinfo() {
 	string command = "gettxoutsetinfo";
 	Value params, result;
 	utxosetinfo_t ret;

@@ -38,7 +38,7 @@ This example will show how the library can be used in your project.
 Filename getbalance.cpp
 
 ```
-#include <bitcoinapi/bitcoinapi.h>
+#include <zerorpc/zerorpc.h>
 
 int main()
 {
@@ -50,7 +50,7 @@ int main()
     try
     {
         /* Constructor to connect to the bitcoin daemon */
-        BitcoinAPI btc(username, password, address, port);
+        ZeroRPC btc(username, password, address, port);
 
         /* Example method - getbalance */
         std::cout << "Wallet balance: " << btc.getbalance() << std::endl;
@@ -64,7 +64,7 @@ int main()
 
 To successfully compile the program you need to link it with the new library:
 ```
-g++ getbalance.cpp -lbitcoinapi
+g++ getbalance.cpp -lzerorpc
 ```
 
 The full list of available API calls can be found [here](https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list). Nearly the complete list of calls is implemented and thoroughly tested.
@@ -101,4 +101,4 @@ Used libraries
 
 Acknowledgements
 ----------------
-The original idea for a C++ wrapper for JSON-RPC communication originates from [here](https://github.com/mmgrant73/bitcoinapi). Upon closer evaluation, however, the library contained too many bugs and was thus completely rebuilt from bottom up.
+The original idea for a C++ wrapper for JSON-RPC communication originates from [here](https://github.com/mmgrant73/zerorpc). Upon closer evaluation, however, the library contained too many bugs and was thus completely rebuilt from bottom up.
